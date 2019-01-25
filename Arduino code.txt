@@ -1,0 +1,80 @@
+#include <SoftwareSerial.h>
+
+int bluetoothRx = 1; 
+int bluetoothTx = 0;  
+ 
+int led = 13;
+
+int button1State = 0;
+int button2State = 0;
+int buttonPin1 = 6;
+int buttonPin2 = 8;
+
+
+int dataFromBt;
+
+boolean lightBlink = false;
+
+SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+
+void setup()
+{
+  Serial.begin(9600);
+
+  bluetooth.begin(115200);
+  bluetooth.print("$");
+  bluetooth.print("$");
+  bluetooth.print("$");
+  delay(100);
+  bluetooth.println("U,9600,N"); 
+  bluetooth.begin(9600);
+  pinMode(led, OUTPUT);
+  pinMode(buttonPin1, INPUT);
+  pinMode(buttonPin2, INPUT);
+}
+
+void loop()
+{
+
+  if (bluetooth.available())
+  {
+   int data;
+    data=bluetooth.read();
+    Serial.println(data);
+    
+    dataFromBt = bluetooth.read();
+
+    if (data == 49) {
+      Serial.println("led on");
+      digitalWrite(led, HIGH);
+      Serial.println((char)bluetooth.read());
+     
+    }
+    if (data == 48) {
+      Serial.println("led off");
+      digitalWrite(led, LOW);
+      Serial.println((char)bluetooth.read());
+     
+    }
+    if (dataFromBt == 'b') {
+      Serial.println("a");
+      lightBlink = true;
+    }
+
+  }
+
+  
+  button1State = digitalRead(buttonPin1);
+  button2State = digitalRead(buttonPin2);
+  if (button1State == HIGH) {
+    digitalWrite(led, HIGH);
+    bluetooth.print("1");
+    Serial.println("on");
+
+  }
+  if (button2State == HIGH) {
+    digitalWrite(led, LOW);
+    Serial.println("off");
+    bluetooth.print("0");
+  }
+}
